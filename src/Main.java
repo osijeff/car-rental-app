@@ -1,4 +1,3 @@
-
 import carrental.users.*;
 import carrental.vehicles.*;
 import carrental.reservations.*;
@@ -13,11 +12,15 @@ public class Main {
     private static final Scanner scanner = new Scanner(System.in);
     private static final List<Car> cars = new ArrayList<>();
     private static final List<Reservation> reservations = new ArrayList<>();
+    private static final List<Customer> customers = new ArrayList<>();
+    private static final List<Admin> admins = new ArrayList<>();
 
     public static void main(String[] args) {
         // Sample users
-        Customer customer = new Customer(1, "Alice", "alice@example.com");
-        Admin admin = new Admin(99, "Bob", "bob@admin.com");
+        Customer customer = new Customer(1, "Alice", "alice@example.com", "alice123");
+        Admin admin = new Admin(99, "Bob", "bob@admin.com", "admin123");
+        customers.add(customer);
+        admins.add(admin);
 
         // Sample cars
         cars.add(new Car(1, "Toyota", "Corolla", 2022, "ABC-123", 45.00));
@@ -30,11 +33,27 @@ public class Main {
             System.out.println("2. Admin Login");
             System.out.println("0. Exit");
             System.out.print("Choose user type: ");
+
             int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
 
             switch (choice) {
-                case 1 -> customerMenu(customer);
-                case 2 -> adminMenu(admin);
+                case 1 -> {
+                    User loggedInCustomer = loginUser(customers);
+                    if (loggedInCustomer != null) {
+                        customerMenu((Customer) loggedInCustomer);
+                    } else {
+                        System.out.println("Invalid email or password.");
+                    }
+                }
+                case 2 -> {
+                    User loggedInAdmin = loginUser(admins);
+                    if (loggedInAdmin != null) {
+                        adminMenu((Admin) loggedInAdmin);
+                    } else {
+                        System.out.println("Invalid email or password.");
+                    }
+                }
                 case 0 -> {
                     System.out.println("Thank you for using Car Rental App!");
                     return;
@@ -42,6 +61,20 @@ public class Main {
                 default -> System.out.println("Invalid option.");
             }
         }
+    }
+
+    private static <T extends User> User loginUser(List<T> userList) {
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+
+        for (T user : userList) {
+            if (user.getEmail().equalsIgnoreCase(email) && user.getPassword().equals(password)) {
+                return user;
+            }
+        }
+        return null;
     }
 
     private static void customerMenu(Customer customer) {
@@ -119,7 +152,8 @@ public class Main {
         reservations.add(reservation);
         System.out.println("Reservation confirmed!");
 
-        Payment payment = new Payment(reservation.getReservationId(), reservation, selectedCar.calculateRentalCost((int) (end.toEpochDay() - start.toEpochDay())), "Credit Card", String.valueOf(LocalDate.now()));
+        double totalCost = selectedCar.calculateRentalCost((int) (end.toEpochDay() - start.toEpochDay()));
+        Payment payment = new Payment(reservation.getReservationId(), reservation, totalCost, "Credit Card", String.valueOf(LocalDate.now()));
         payment.process();
     }
 
@@ -138,7 +172,7 @@ public class Main {
         String model = scanner.nextLine();
         System.out.print("Year: ");
         int year = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        scanner.nextLine();
         System.out.print("License Plate: ");
         String plate = scanner.nextLine();
         System.out.print("Rental Price per Day: ");

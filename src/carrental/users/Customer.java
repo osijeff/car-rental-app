@@ -2,8 +2,8 @@ package carrental.users;
 
 public class Customer extends User {
 
-    public Customer(int userId, String name, String email) {
-        super(userId, name, email);
+    public Customer(int userId, String name, String email, String password) {
+        super(userId, name, email, password);
     }
 
     @Override
