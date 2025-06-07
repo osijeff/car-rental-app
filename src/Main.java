@@ -31,6 +31,7 @@ public class Main {
         while (true) {
             System.out.println("\n1. Customer Login");
             System.out.println("2. Admin Login");
+            System.out.println("3. Register as Customer");
             System.out.println("0. Exit");
             System.out.print("Choose user type: ");
 
@@ -54,6 +55,8 @@ public class Main {
                         System.out.println("Invalid email or password.");
                     }
                 }
+                case 3 -> registerCustomer();
+
                 case 0 -> {
                     System.out.println("Thank you for using Car Rental App!");
                     return;
@@ -182,4 +185,31 @@ public class Main {
         cars.add(newCar);
         System.out.println("Car added to inventory.");
     }
+
+    private static void registerCustomer() {
+        System.out.println("\n--- Customer Registration ---");
+        System.out.print("Enter name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Enter email: ");
+        String email = scanner.nextLine();
+
+        // Check if email is already used
+        for (Customer c : customers) {
+            if (c.getEmail().equalsIgnoreCase(email)) {
+                System.out.println("Email already registered. Try logging in.");
+                return;
+            }
+        }
+
+        System.out.print("Create password: ");
+        String password = scanner.nextLine();
+
+        int newId = customers.size() + 1;
+        Customer newCustomer = new Customer(newId, name, email, password);
+        customers.add(newCustomer);
+
+        System.out.println("Registration successful! You can now log in.");
+    }
+
 }
